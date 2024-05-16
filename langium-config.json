@@ -1,0 +1,15 @@
+{
+    "projectName": "RobotMissionMaster",
+    "languages": [{
+        "id": "robot-mission-master",
+        "grammar": "src/language/robot-mission-master.langium",
+        "fileExtensions": [".romi"],
+        "textMate": {
+            "out": "syntaxes/robot-mission-master.tmLanguage.json"
+        },
+        "monarch": {
+            "out": "syntaxes/robot-mission-master.monarch.ts"
+        }
+    }],
+    "out": "src/language/generated"
+}
