@@ -2,7 +2,7 @@ Environment {
     ID: Alpha
     Size: Size(100, 100, 100)
     Obstacles: {}
-    Objects: {
+    Objects {
         WorldObject {
             ID: Coin
             Position: (50, 50, 0)
