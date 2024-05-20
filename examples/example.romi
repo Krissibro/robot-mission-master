@@ -1,0 +1,66 @@
+Environment {
+    ID: Alpha
+    Size: Size(100, 100, 100)
+    Obstacles: {}
+    Objects: {
+        WorldObject {
+            ID: Coin
+            Position: (50, 50, 0)
+            Size: (1, 1, 1)
+            Weight: 1
+        }
+        WorldObject {
+            ID: Rock 
+            Position: (100, 50, 0) 
+            Size: (5, 5, 5) 
+            Weight: 80
+        }
+    }
+}
+
+Robot {
+    ID: Milo
+    RobotType: Land
+    Battery: 20*60     // 20 minutes 
+    Capacity: 50
+}
+
+Robot {
+    ID: Lomi
+    RobotType: Land
+    Battery: 20*60     // 20 minutes 
+    Capacity: 50
+}
+
+Mission {
+    ID: GoPickUpThing
+    Description: Milo goes to a coin, picks it up and returns to start to drop it off.
+    Environment: Alpha
+    Robots: Milo
+    RobotStarts: (0, 0, 0)
+    Tasks {
+        Milo moveTo(50, 50, 0)
+        Milo pickup(Coin)
+        Milo returnToStart()
+        Milo drop(Coin)
+    }
+}
+
+
+
+/* Multi robot actoion mission
+Mission {
+    ID: PickupHeavyRock
+    Description: Milo and Lomi goes to perform a single rep deadlift on a heavy rock.
+    Environment: Alpha
+    Robots: Milo, Lomi
+    RobotStarts: (0, 0, 0), (100, 100, 100)
+    Tasks {
+        //MultiAction applies an action to multiple robots
+        MultiAction((Milo, Lomi), moveTo(Rock))    
+        MultiAction({Milo, Lomi}, pickup(Rock))   // Rock is too heavy for a single robot
+        MultiAction([Milo, Lomi], drop(Rock))
+        MultiAction [Milo, Lomi] drop(Rock)
+    }
+}
+*/

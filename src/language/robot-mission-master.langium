@@ -2,32 +2,33 @@ grammar RobotMissionMaster
 
 
 entry Model: 
-    (statements += Statement | definitions += Definition)*;
+    (definitions += Definition | environments+=Environment | missions+=Mission)*;    
 
-Statement: 
-    Mission | Robot | Environment | Macro;
+// Environment 
+Environment: 
+    Size | 
+    Objects |
+    Obstacles;
 
-Mission: 
-    Environment | 
-    Task | 
-    Robot Block;
+Objects:
+    objects += WorldObject;
 
-Macro:          
-    definition=[Definition:ID] '(' (arguments+=Expression (',' arguments+=Expression)*)? ')';
-Definition:    
-    'definition' name=ID '(' (parameters+=Parameter (',' parameters+=Parameter)*)? ')' Block;
+WorldObject: 
+    ID | 
+    Position | 
+    Size;
 
+Obstacles:
+    obstacles += Obstacle;
 
-Task: Description | Actions | MultipleRobotActions | Time;
+Obstacle: 
+    Position | 
+    ObstacleType | 
+    Size;
 
-Description: 
-    "Description" ":" description=STRING;
-Actions: 
-    "Actions" ":" actions+=Action*;
-MultipleRobotActions: 
-    "MultipleRobotActions" ":" multiplyiRobotActions+=Action*;
-Time: 
-    "Time" ":" time=Expression*;
+terminal ObstacleType:
+    ("Land" | "Water" | "Air" | "Weather");
+
 
 
 // Robot
@@ -36,78 +37,99 @@ Robot:
     RobotType | 
     Position | 
     StartPosition | 
-    Battery 
-    Block;
+    Battery;
 
 PossibleActions:    
-    "PossibleActions" ":" actions+=Action*;
+    actions+=Action*;
 StartPosition:    
-    "StartPosition" ":" startPosition=Position*;
+    startPosition=Position*;
 Battery:    
-    "Battery" ":" battery=Time;
+    battery=Time;
 terminal RobotType: 
-    "LandRobot" | "Boat" | "UnderwaterDrone" | "AirDrone";
-
-
-// Environment 
-Environment: 
-    Size | 
-    Obstacle | 
-    WorldObject 
-    Block;
-
-WorldObject: 
-    ID | 
-    Position | 
-    Size;
-
-Obstacle: 
-    Position | 
-    ObstacleType | 
-    Size;
-
-terminal ObstacleType: "ObstacleType" ":" ("Land" | "Water" | "Air" | "Weather");
+    "Land" | "SurfaceWater" | "Underwater" | "Air";
 
 
 Action: 
-    Move | Turn | MoveTo | Wait | Pickup | Drop | WorkAction;
+    ActionBlock | Move | Turn | MoveTo | Wait | Pickup | Drop | ReturnToStart | CustomAction;
+
+ActionBlock:
+    nname=ID '(' (action+=Action (',' action+=Action)*)? ')';  
 
 Move: 
-    "Move" "(" direction=Vector "," length=Expression ")";
+     (direction=Vector | length=Expression) ;
 MoveTo: 
-    "MoveTo" position=Position;
+    position=Position;
 Turn: 
-    "Turn" ":" ("ToAngle" ":"  angle=Expression | "ToDirection" ":" direction=Vector);
+    (angle=Expression | direction=Vector);
 Wait: 
-    "Wait"  ":" time=Expression;
+    time=Expression;
 Pickup: 
-    "Object" ":" WorldObject;
+    pickup=WorldObject;
 Drop: 
-    "Drop" ":" WorldObject;
-WorkAction: 
-    "Description" description=STRING;
+    drop=WorldObject;
+CustomAction: 
+    description=STRING;
+ReturnToStart:
+    position=StartPosition;
 
 
+
+Mission: 
+    Environment | 
+    Task | 
+    Robot;
+
+
+Tasks:
+    tasks += Task;
+
+Task: Robot | Action | Time;
+
+Description: 
+    description=STRING;
+Actions: 
+    actions+=Action*;
+// MultipleRobotActions: 
+//     multipleRobotActions+=Action*;
+Time: 
+    time=Expression*;
+
+
+
+
+
+// Tuples with numerical info
 Size: 
-    "Size" "(" length=Expression "," width=Expression "," height=Expression ")";
+    "(" length=Expression "," width=Expression "," height=Expression ")";
 Position: 
-    "Position" "(" x=Expression "," y=Expression "," z=Expression ")";
+    "(" x=Expression "," y=Expression "," z=Expression ")";
 Vector: 
-    "Vector" "(" x=Expression "," y=Expression "," z=Expression ")";
+    "(" x=Expression "," y=Expression "," z=Expression ")";
 
 
-fragment Block: '{' body+=Statement* '}';
+// Element syntax stuff
+Parameter:
+    name=ID ":" type=[Parameter];
 
-Parameter: name=ID;
+Definition:
+    DefinitionBlock | Mission | Environment | Robot | Tasks | WorldObject | Obstacle;
 
-Expression: Add;
+DefinitionBlock:    
+    name=ID '{' 
+        (parameters+=Parameter)* 
+    '}';
 
-Add  infers Expression: 
-    Multiply     ({infer BinExpression.e1=current} op=('+'|'-') e2=Multiply)*;
-Multiply infers Expression: 
-    PrimaryExpression ({infer BinExpression.e1=current} op=('*'|'/') e2=PrimaryExpression)*;
 
-// Primary Expressions
+
+// Number stuff
+Expression: Addition;
+
+Addition  infers Expression: 
+    Multiplication     ({infer BinExpression.left=current} op=('+'|'-') right=Multiplication)*;
+
+Multiplication infers Expression: 
+    PrimaryExpression ({infer BinExpression.left=current} op=('*'|'/') right=PrimaryExpression)*;
+
 PrimaryExpression: Literal | Reference | Group | NegativeExpression;
 
 Literal:                
@@ -123,8 +145,9 @@ NegativeExpression:
 // Terminals
 terminal ID returns string:         
     /[_a-zA-Z][\w_]*/;
-terminal STRING returns string:      
-    /[_a-zA-Z][\w_]*/;
+// "text"
+terminal STRING returns string: 
+    /"[^"]*"/;
 terminal NUMBER returns number:       
     /(?:(?:-?[0-9]+)?\.[0-9]+)|-?[0-9]+/;
 
