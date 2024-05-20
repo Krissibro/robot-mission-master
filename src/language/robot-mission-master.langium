@@ -2,10 +2,10 @@ grammar RobotMissionMaster
 
 
 entry Model: 
-    (robots+=Robot | environments+=Environment | missions+=Mission)*;
+    (statements += Statement | definitions += Definition)*;
 
 Statement: 
-    Mission | Robot | Environment;
+    Mission | Robot | Environment | Macro;
 
 Mission: 
     Environment | 
@@ -13,12 +13,12 @@ Mission:
     Robot Block;
 
 Macro:          
-    definition=[Definition:ID] '(' (arguments+=Expression (',' argumentss+=Expression)*)? ')';
+    definition=[Definition:ID] '(' (arguments+=Expression (',' arguments+=Expression)*)? ')';
 Definition:    
     'definition' name=ID '(' (parameters+=Parameter (',' parameters+=Parameter)*)? ')' Block;
 
 
-Task: Description | Action | MultipleRobotActions | Time;
+Task: Description | Actions | MultipleRobotActions | Time;
 
 Description: 
     "Description" ":" description=STRING;
@@ -107,7 +107,7 @@ Add  infers Expression:
 Multiply infers Expression: 
     PrimaryExpression ({infer BinExpression.e1=current} op=('*'|'/') e2=PrimaryExpression)*;
 
-// Primary Expressionessions
+// Primary Expressions
 PrimaryExpression: Literal | Reference | Group | NegativeExpression;
 
 Literal:                
@@ -121,8 +121,6 @@ NegativeExpression:
 
 
 // Terminals
-terminal HEX returns string:        
-    /#(\d|[a-fA-F]){3,6}/;
 terminal ID returns string:         
     /[_a-zA-Z][\w_]*/;
 terminal STRING returns string:      
