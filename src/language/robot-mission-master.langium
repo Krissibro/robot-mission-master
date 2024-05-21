@@ -2,49 +2,82 @@ grammar RobotMissionMaster
 
 
 entry Model: 
-    (definitions += Definition | environments+=Environment | missions+=Mission)*;    
+    (definitions += Definition)*;    
+
+
+// Element syntax stuff
+Definition:
+    DefinitionBlock | 
+    Mission | 
+    Environment | 
+    Robot | 
+    Tasks | 
+    Objects |
+    WorldObject | 
+    Obstacles |
+    Obstacle;
+
+DefinitionBlock:    
+    name=ID '{' 
+        (properties+=Property)* 
+        // (propertyName=[Property:ID] ":" properties+=Property)* 
+    '}';
+
+Property:
+    PropertyBlock | 
+    Action;
+
+PropertyBlock:
+    name=ID ":" value=Expression;
+
+
+ActionBlock:
+    robot=[Robot:ID] name=ID '(' (action+=Action (',' action+=Action)*)? ')';  
+
 
 // Environment 
 Environment: 
-    Size | 
-    Objects |
-    Obstacles;
-
-Objects:
-    objects += WorldObject;
+    name=ID &
+    Size=Size &
+    objects=Objects &
+    obstacles=Obstacles;
 
 WorldObject: 
-    ID | 
-    Position | 
+    name=ID &
+    position=Position &  
+    size=Size &
+    weight=NUMBER;
+
+Obstacle:
+    name=ID &
+    position=Position &
+    ObstacleType &
     Size;
+
+Objects:
+    objects+=WorldObject*;
 
 Obstacles:
-    obstacles += Obstacle;
-
-Obstacle: 
-    Position | 
-    ObstacleType | 
-    Size;
+    obstacles+=Obstacle*;
 
 terminal ObstacleType:
-    ("Land" | "Water" | "Air" | "Weather");
+    "Land" | "Water" | "Air" | "Weather";
 
 
 
 // Robot
 Robot: 
-    PossibleActions | 
-    RobotType | 
-    Position | 
-    StartPosition | 
-    Battery;
+    name=ID &
+    robotType=RobotType &
+    battery=Expression 
+    possibleActions = Action*;
 
-PossibleActions:    
-    actions+=Action*;
-StartPosition:    
-    startPosition=Position*;
-Battery:    
-    battery=Time;
+// PossibleActions:    
+//     actions+=Action*;
+// StartPosition:    
+//     startPosition=Position*;
+// Battery:    
+//     battery=Expression;
 terminal RobotType: 
     "Land" | "SurfaceWater" | "Underwater" | "Air";
 
@@ -52,11 +85,10 @@ terminal RobotType:
 Action: 
     ActionBlock | Move | Turn | MoveTo | Wait | Pickup | Drop | ReturnToStart | CustomAction;
 
-ActionBlock:
-    nname=ID '(' (action+=Action (',' action+=Action)*)? ')';  
+
 
 Move: 
-     (direction=Vector | length=Expression) ;
+     direction=Vector length=Expression;
 MoveTo: 
     position=Position;
 Turn: 
@@ -70,29 +102,30 @@ Drop:
 CustomAction: 
     description=STRING;
 ReturnToStart:
-    position=StartPosition;
+    position=[Mission:ID];
 
 
 
-Mission: 
-    Environment | 
-    Task | 
-    Robot;
-
-
-Tasks:
-    tasks += Task;
-
-Task: Robot | Action | Time;
+Mission:
+    name=ID
+    Description? 
+    environment = [Environment:ID] 
+    robots += [Robot:ID]+
+    startPositions += Position* 
+    Tasks?;
 
 Description: 
-    description=STRING;
-Actions: 
-    actions+=Action*;
+    description=STRING?;
+Tasks:
+    tasks += Task*;
+
+Task: Robot  Action;
+
+
 // MultipleRobotActions: 
 //     multipleRobotActions+=Action*;
-Time: 
-    time=Expression*;
+// Time: 
+//     time=Expression*;
 
 
 
@@ -101,23 +134,15 @@ Time:
 // Tuples with numerical info
 Size: 
     "(" length=Expression "," width=Expression "," height=Expression ")";
+// Weight: 
+//     weight=Expression;
 Position: 
     "(" x=Expression "," y=Expression "," z=Expression ")";
 Vector: 
     "(" x=Expression "," y=Expression "," z=Expression ")";
 
 
-// Element syntax stuff
-Parameter:
-    name=ID ":" type=[Parameter];
 
-Definition:
-    DefinitionBlock | Mission | Environment | Robot | Tasks | WorldObject | Obstacle;
-
-DefinitionBlock:    
-    name=ID '{' 
-        (parameters+=Parameter)* 
-    '}';
 
 
 
@@ -135,7 +160,7 @@ PrimaryExpression: Literal | Reference | Group | NegativeExpression;
 Literal:                
     value=NUMBER;
 Reference:              
-    value=[Parameter:ID];
+    value=[Property:ID];
 Group:                  
     "(" group=Expression ")";
 NegativeExpression:     
