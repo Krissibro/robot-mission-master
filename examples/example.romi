@@ -1,7 +1,13 @@
 Environment {
     ID: Alpha
-    Size: Size(100, 100, 100)
-    Obstacles: {}
+    Size: (100, 100, 100)
+    Obstacles: {
+        Obstacle {
+            ID: Tree
+            Position: (30, 30, 30)
+            Size: (10, 10, 10)
+        }
+    }
     Objects {
         WorldObject {
             ID: Coin
@@ -21,28 +27,31 @@ Environment {
 Robot {
     ID: Milo
     RobotType: Land
-    Battery: 20*60     // 20 minutes 
+    Battery: 20*60  // 20 min
     Capacity: 50
 }
 
 Robot {
     ID: Lomi
-    RobotType: Land
-    Battery: 20*60     // 20 minutes 
-    Capacity: 50
+    RobotType: Air
+    Battery: 20*60
+    Capacity: 10
 }
 
 Mission {
     ID: GoPickUpThing
-    Description: Milo goes to a coin, picks it up and returns to start to drop it off.
+    Description: "Milo goes to a coin, 
+                  picks it up and returns 
+                  to start to drop it off."
     Environment: Alpha
-    Robots: Milo
+    Robots: Milo, Lomi
     RobotStarts: (0, 0, 0)
     Tasks {
         Milo moveTo(50, 50, 0)
         Milo pickup(Coin)
         Milo returnToStart()
         Milo drop(Coin)
+        Lomi moveTo(30, 30, 50)
     }
 }
 
