@@ -20,15 +20,14 @@ Definition:
 DefinitionBlock:    
     name=ID '{' 
         (properties+=Property)* 
-        // (propertyName=[Property:ID] ":" properties+=Property)* 
     '}';
 
 Property:
     PropertyBlock | 
-    Action;
+    Size;
 
 PropertyBlock:
-    name=ID ":" value=Expression;
+    name=ID ":" value=Property;
 
 
 ActionBlock:
