@@ -28,7 +28,15 @@ Property:
     Weight |
     Position |
     Vector |
-    Size;
+    Size |
+    ObstacleType |
+    RobotType |
+    Battery |
+    PossibleActions |
+    Description |
+    PickedEnvironment |
+    PickedRobots |
+    RobotStartPositions;
 
 PropertyBlock:
     name=ID ":" value=Property;
@@ -44,9 +52,6 @@ Environment:
     Objects &
     Obstacles;
 
-EnvironmentProperties:
-    PropertyBlock |
-    ObstacleType;
 
 WorldObject: 
     NameID &
@@ -67,7 +72,7 @@ Obstacles:
     obstacles+=Obstacle*;
 
 ObstacleType:
-    obstacleType = ("Land" | "Water" | "Air" | "Weather");
+    obstacleType=("Land" | "Water" | "Air" | "Weather");
 
 
 
@@ -80,12 +85,7 @@ Robot:
     RobotType &
     Battery &
     PossibleActions; 
-
-RobotProperties:
-    PropertyBlock |
-    RobotType |
-    Battery |
-    PossibleActions;
+    
 
 Battery:
     battery=Expression;
@@ -102,7 +102,7 @@ Action:
     ActionBlock | Move | Turn | MoveTo | Wait | Pickup | Drop | ReturnToStart | CustomAction;
 
 ActionBlock:
-    robot=[Robot:ID] name=ID '(' (action+=Action (',' action+=Action)*)? ')';  
+    robot=[Robot:ID] name=[Action:ID] '('  ')';  
 
 
 Move: 
@@ -120,7 +120,7 @@ Drop:
 CustomAction: 
     description=STRING;
 ReturnToStart:
-    position=[Mission:ID];
+    position=[Mission:RobotStartPositions];
 
 
 
@@ -138,15 +138,8 @@ Mission:
     Tasks;
 
 
-MissionProperties:
-    PropertyBlock |
-    Description |
-    PickedEnvironment |
-    PickedRobots |
-    RobotStartPositions;
-
 PickedEnvironment:
-    environment = [Environment:ID];
+    environment=[Environment:ID];
     
 PickedRobots:
     robots+=[Robot:ID] (',' robots+=[Robot:ID])*;
@@ -181,8 +174,6 @@ Weight:
 // Tuples with numerical info
 Size: 
     size = "(" length=Expression "," width=Expression "," height=Expression ")";
-// Weight: 
-//     weight=Expression;
 Position: 
     position = "(" x=Expression "," y=Expression "," z=Expression ")";
 Vector: 
