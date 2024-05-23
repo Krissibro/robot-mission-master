@@ -4,8 +4,10 @@ Environment {
     Obstacles: {
         Obstacle {
             ID: Tree
+            ObstacleType: Land
             Position: (30, 30, 30)
             Size: (10, 10, 10)
+
         }
     }
     Objects {

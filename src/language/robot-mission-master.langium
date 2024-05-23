@@ -24,32 +24,44 @@ DefinitionBlock:
 
 Property:
     PropertyBlock | 
-    Size;
+    NameID |
+    Weight |
+    Position |
+    Vector |
+    Size |
+    ObstacleType |
+    RobotType |
+    Battery |
+    PossibleActions |
+    Description |
+    PickedEnvironment |
+    PickedRobots |
+    RobotStartPositions;
 
 PropertyBlock:
     name=ID ":" value=Property;
 
 
-ActionBlock:
-    robot=[Robot:ID] name=ID '(' (action+=Action (',' action+=Action)*)? ')';  
+
 
 
 // Environment 
 Environment: 
-    name=ID &
-    Size=Size &
-    objects=Objects &
-    obstacles=Obstacles;
+    NameID &
+    Size &
+    Objects &
+    Obstacles;
+
 
 WorldObject: 
-    name=ID &
-    position=Position &  
-    size=Size &
-    weight=NUMBER;
+    NameID &
+    Position &  
+    Size &
+    Weight;
 
 Obstacle:
-    name=ID &
-    position=Position &
+    NameID &
+    Position &
     ObstacleType &
     Size;
 
@@ -59,31 +71,38 @@ Objects:
 Obstacles:
     obstacles+=Obstacle*;
 
-terminal ObstacleType:
-    "Land" | "Water" | "Air" | "Weather";
+ObstacleType:
+    obstacleType=("Land" | "Water" | "Air" | "Weather");
+
+
 
 
 
 // Robot
-Robot: 
-    name=ID &
-    robotType=RobotType &
-    battery=Expression 
-    possibleActions = Action*;
 
-// PossibleActions:    
-//     actions+=Action*;
-// StartPosition:    
-//     startPosition=Position*;
-// Battery:    
-//     battery=Expression;
-terminal RobotType: 
-    "Land" | "SurfaceWater" | "Underwater" | "Air";
+Robot: 
+    NameID &
+    RobotType &
+    Battery &
+    PossibleActions; 
+    
+
+Battery:
+    battery=Expression;
+
+PossibleActions:    
+    actions+=Action*;
+
+RobotType: 
+    robotType=("Land" | "SurfaceWater" | "Underwater" | "Air");
+
 
 
 Action: 
     ActionBlock | Move | Turn | MoveTo | Wait | Pickup | Drop | ReturnToStart | CustomAction;
 
+ActionBlock:
+    robot=[Robot:ID] name=[Action:ID] '('  ')';  
 
 
 Move: 
@@ -101,24 +120,40 @@ Drop:
 CustomAction: 
     description=STRING;
 ReturnToStart:
-    position=[Mission:ID];
+    position=[Mission:RobotStartPositions];
 
 
+
+
+
+
+// Mission
 
 Mission:
-    name=ID
-    Description? 
-    environment = [Environment:ID] 
-    robots += [Robot:ID]+
-    startPositions += Position* 
-    Tasks?;
+    NameID &
+    Description &
+    PickedEnvironment &
+    PickedRobots &
+    RobotStartPositions &
+    Tasks;
+
+
+PickedEnvironment:
+    environment=[Environment:ID];
+    
+PickedRobots:
+    robots+=[Robot:ID] (',' robots+=[Robot:ID])*;
+
+RobotStartPositions:
+    robot=[Robot:ID] startPositions+=Position ("," robot=[Robot:ID] startPositions+=Position)*;
 
 Description: 
     description=STRING?;
 Tasks:
     tasks += Task*;
 
-Task: Robot  Action;
+Task: 
+    robot=[Robot:ID] action=Action;
 
 
 // MultipleRobotActions: 
@@ -128,17 +163,21 @@ Task: Robot  Action;
 
 
 
+// General
 
+NameID:
+    name=ID;
+
+Weight:
+    weight=Expression;
 
 // Tuples with numerical info
 Size: 
-    "(" length=Expression "," width=Expression "," height=Expression ")";
-// Weight: 
-//     weight=Expression;
+    size = "(" length=Expression "," width=Expression "," height=Expression ")";
 Position: 
-    "(" x=Expression "," y=Expression "," z=Expression ")";
+    position = "(" x=Expression "," y=Expression "," z=Expression ")";
 Vector: 
-    "(" x=Expression "," y=Expression "," z=Expression ")";
+    vector = "(" x=Expression "," y=Expression "," z=Expression ")";
 
 
 
