@@ -2,186 +2,139 @@ grammar RobotMissionMaster
 
 
 entry Model: 
-    (definitions += Definition)*;    
+    (instances += Instance)*;    
 
-
-// Element syntax stuff
-Definition:
-    DefinitionBlock | 
+Instance:
     Mission | 
     Environment | 
-    Robot | 
-    Tasks | 
-    Objects |
-    WorldObject | 
-    Obstacles |
-    Obstacle;
-
-DefinitionBlock:    
-    name=ID '{' 
-        (properties+=Property)* 
-    '}';
-
-Property:
-    PropertyBlock | 
-    NameID |
-    Weight |
-    Position |
-    Vector |
-    Size |
-    ObstacleType |
-    RobotType |
-    Battery |
-    PossibleActions |
-    Description |
-    PickedEnvironment |
-    PickedRobots |
-    RobotStartPositions;
-
-PropertyBlock:
-    name=ID ":" value=Property;
-
-
-
+    Robot; 
 
 
 // Environment 
-Environment: 
-    NameID &
-    Size &
-    Objects &
-    Obstacles;
-
-
-WorldObject: 
-    NameID &
-    Position &  
-    Size &
-    Weight;
-
-Obstacle:
-    NameID &
-    Position &
-    ObstacleType &
-    Size;
+Environment:
+    "Environment" "{" 
+        ID
+        SizeProperty &
+        Objects &
+        Obstacles
+    "}";
 
 Objects:
-    objects+=WorldObject*;
+    "Objects" "{"
+        objects+=WorldObject*
+    "}";
+
+WorldObject:
+    "WorldObject" "{" 
+        ID
+        PositionProperty &  
+        SizeProperty &
+        Weight
+    "}";
 
 Obstacles:
-    obstacles+=Obstacle*;
+    "Obstacles" "{"
+        obstacles+=Obstacle*
+    "}";
+
+Obstacle:
+    "Obstacle" "{"
+        ID
+        PositionProperty &
+        ObstacleType &
+        SizeProperty
+    "}";
 
 ObstacleType:
-    obstacleType=("Land" | "Water" | "Air" | "Weather");
-
-
+    "ObstacleType" ":" obstacleType=("Land" | "Water" | "Air" | "Weather");
 
 
 
 // Robot
-
 Robot: 
-    NameID &
-    RobotType &
-    Battery &
-    PossibleActions; 
-    
+    "Robot" "{"
+        ID
+        RobotType &
+        Battery &
+        Capacity 
+    "}";
 
-Battery:
-    battery=Expression;
-
-PossibleActions:    
-    actions+=Action*;
-
+Battery:    
+    "Battery" ":" battery=Expression;
 RobotType: 
-    robotType=("Land" | "SurfaceWater" | "Underwater" | "Air");
-
+    "RobotType" ":" robotType=("Land" | "SurfaceWater" | "Underwater" | "Air");
+Capacity:
+    "Capacity" ":" capacity=Expression;
 
 
 Action: 
-    ActionBlock | Move | Turn | MoveTo | Wait | Pickup | Drop | ReturnToStart | CustomAction;
-
-ActionBlock:
-    robot=[Robot:ID] name=[Action:ID] '('  ')';  
-
+    Move | Turn | MoveTo | Wait | Pickup | Drop | ReturnToStart;
 
 Move: 
-     direction=Vector length=Expression;
+    "Move" "(" direction=VectorProperty "," length=Length ")";
 MoveTo: 
-    position=Position;
-Turn: 
-    (angle=Expression | direction=Vector);
-Wait: 
-    time=Expression;
-Pickup: 
-    pickup=WorldObject;
-Drop: 
-    drop=WorldObject;
-CustomAction: 
-    description=STRING;
+    "Position" "("position=Position ")";
 ReturnToStart:
-    position=[Mission:RobotStartPositions];
+   "ReturnToStart" "(" position=[Mission:UNIQUE]? ")";
+Turn: 
+   "Turn" "(" (angle=Angle | direction=Vector) ")";
+Wait: 
+   "Wait" "(" time=Expression ")";
+Pickup: 
+    "Pickup" "(" pickupObject=[WorldObject:UNIQUE] ")";
+Drop: 
+   "Drop" "(" dropObject=[WorldObject:UNIQUE] ")";
 
 
 
-
-
-
-// Mission
 
 Mission:
-    NameID &
-    Description &
-    PickedEnvironment &
-    PickedRobots &
-    RobotStartPositions &
-    Tasks;
-
-
-PickedEnvironment:
-    environment=[Environment:ID];
-    
-PickedRobots:
-    robots+=[Robot:ID] (',' robots+=[Robot:ID])*;
-
-RobotStartPositions:
-    robot=[Robot:ID] startPositions+=Position ("," robot=[Robot:ID] startPositions+=Position)*;
+    "Mission" "{"
+        ID
+        Description? 
+        EnvironmentProperty
+        RobotsProperty
+        StartPositions 
+        Tasks?
+    "}";
 
 Description: 
-    description=STRING?;
+    "Description" ":" description=STRING;
+
+EnvironmentProperty:
+    "Environment" ":" environment = [Environment:UNIQUE];
+RobotsProperty:
+    "Robots" ":" robots+=[Robot:UNIQUE] (',' robots+=[Robot:UNIQUE])*;
+StartPositions:
+    "StartPositions" ":" startPositions+=Position (',' startPositions+=Position);
 Tasks:
-    tasks += Task*;
-
-Task: 
-    robot=[Robot:ID] action=Action;
-
-
-// MultipleRobotActions: 
-//     multipleRobotActions+=Action*;
-// Time: 
-//     time=Expression*;
+    "Tasks" "{" tasks += Task* "}";
+Task: robot=[Robot:UNIQUE]  action=Action;
 
 
 
-// General
+// General values and properties
+ID:
+    "ID" ":" id=UNIQUE;
 
-NameID:
-    name=ID;
-
+Angle:
+    "Angle" ":" angle=Expression;
+Length:
+    "Length" ":" length=Expression;
 Weight:
-    weight=Expression;
-
-// Tuples with numerical info
+    "Weight" ":" weight=Expression;
+SizeProperty:
+    "Size" ":" Size;
 Size: 
-    size = "(" length=Expression "," width=Expression "," height=Expression ")";
+    "(" length=Expression "," width=Expression "," height=Expression ")";
+PositionProperty:
+    "Position" ":" Position;
 Position: 
-    position = "(" x=Expression "," y=Expression "," z=Expression ")";
+    "(" x=Expression "," y=Expression "," z=Expression ")";
+VectorProperty:
+    "Vector" ":" Vector;
 Vector: 
-    vector = "(" x=Expression "," y=Expression "," z=Expression ")";
-
-
-
-
+    "(" x=Expression "," y=Expression "," z=Expression ")";
 
 
 // Number stuff
@@ -193,20 +146,19 @@ Addition  infers Expression:
 Multiplication infers Expression: 
     PrimaryExpression ({infer BinExpression.left=current} op=('*'|'/') right=PrimaryExpression)*;
 
-PrimaryExpression: Literal | Reference | Group | NegativeExpression;
+PrimaryExpression: Literal | Group | NegativeExpression;
 
 Literal:                
     value=NUMBER;
-Reference:              
-    value=[Property:ID];
 Group:                  
     "(" group=Expression ")";
 NegativeExpression:     
     "-" negativeExpression=Expression;
 
 
+
 // Terminals
-terminal ID returns string:         
+terminal UNIQUE returns string:         
     /[_a-zA-Z][\w_]*/;
 // "text"
 terminal STRING returns string: 
