@@ -7,7 +7,9 @@ entry Model:
 Instance:
     Mission | 
     Environment | 
-    Robot; 
+    Robot |
+    WorldObject |
+    Obstacle; 
 
 
 // Environment 
