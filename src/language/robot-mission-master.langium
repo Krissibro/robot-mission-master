@@ -143,10 +143,10 @@ Vector:
 Expression: Addition;
 
 Addition  infers Expression: 
-    Multiplication     ({infer BinExpression.left=current} op=('+'|'-') right=Multiplication)*;
+    Multiplication     ({infer BinExpression.left=current} operator=('+'|'-') right=Multiplication)*;
 
 Multiplication infers Expression: 
-    PrimaryExpression ({infer BinExpression.left=current} op=('*'|'/') right=PrimaryExpression)*;
+    PrimaryExpression ({infer BinExpression.left=current} operator=('*'|'/') right=PrimaryExpression)*;
 
 PrimaryExpression: Literal | Group | NegativeExpression;
 

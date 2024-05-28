@@ -1,5 +1,5 @@
 import type { ValidationAcceptor, ValidationChecks } from 'langium';
-import { isInstance, Model, RobotMissionMasterAstType} from './generated/ast.js';
+import { isInstance, Expression, Size, Model, RobotMissionMasterAstType} from './generated/ast.js';
 import type { RobotMissionMasterServices } from './robot-mission-master-module.js';
 
 /**
@@ -10,7 +10,10 @@ export function registerValidationChecks(services: RobotMissionMasterServices) {
     const validator = services.validation.RobotMissionMasterValidator;
 
     const checks: ValidationChecks<RobotMissionMasterAstType> = {
-        Model: validator.checkUniqueInstanceIDs
+        Model: [
+            validator.checkUniqueInstanceIDs,
+        ],
+        Size: validator.checkValidSize
     };
     registry.register(checks, validator);
 }
@@ -33,8 +36,43 @@ export class RobotMissionMasterValidator {
                 }
             }
         });
-    
     }
 
-    // TODO: Check if WorldObjects or Obstacles overlap
+    checkValidSize(size: Size, accept: ValidationAcceptor): void {  
+        // const { length, width, height } = size;
+        const length = evaluateExpression(size.length);
+        const width = evaluateExpression(size.width);
+        const height = evaluateExpression(size.height);
+    
+        if (height <= 0 || length <= 0 || width <= 0) {
+            accept('error', `Size is invalid. All dimensions must be bigger than than 0`, { node: size });
+        }
+    } 
+
+    //TODO: Check if WorldObjects or Obstacles
+}
+
+
+function evaluateExpression(expression: Expression): number {
+    // Handle the case where expression is a simple literal
+    if ('value' in expression && typeof expression.value === 'number') {
+        return expression.value;
+    }
+    // Handle binary expressions
+    else if ('operator' in expression && expression.operator && expression.left && expression.right) {
+        const left = evaluateExpression(expression.left);
+        const right = evaluateExpression(expression.right);
+        switch (expression.operator) {
+            case '+': return left + right;
+            case '-': return left - right;
+            case '*': return left * right;
+            case '/': 
+                if (right === 0) {
+                    throw new Error("Division by zero");
+                }
+                return left / right;
+            default: throw new Error(`Unsupported operation ${expression.operator}`);
+        }
+    }
+    throw new Error("Unsupported expression type");
 }
