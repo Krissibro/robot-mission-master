@@ -13,7 +13,8 @@ export function registerValidationChecks(services: RobotMissionMasterServices) {
         Model: [
             validator.checkUniqueInstanceIDs,
         ],
-        Size: validator.checkValidSize
+        Size: validator.checkValidSize,
+        Expression: validator.checkValidExpression,
     };
     registry.register(checks, validator);
 }
@@ -48,6 +49,18 @@ export class RobotMissionMasterValidator {
             accept('error', `Size is invalid. All dimensions must be bigger than than 0`, { node: size });
         }
     } 
+
+    checkValidExpression(expression: Expression, accept: ValidationAcceptor): void {
+        try {
+            evaluateExpression(expression);
+        } catch (error) {
+            if (error instanceof Error) {
+                accept('error', error.message, { node: expression });
+            } else {
+                accept('error', 'An unknown error occurred during expression evaluation.', { node: expression });
+            }
+        }
+    }
 
     //TODO: Check if WorldObjects or Obstacles
 }
