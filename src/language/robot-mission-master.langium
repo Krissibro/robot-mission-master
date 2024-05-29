@@ -70,14 +70,14 @@ Capacity:
 
 
 Action: 
-    Move | Turn | MoveTo | Wait | Pickup | Drop | ReturnToStart;
+    Move | Turn | MoveTo | Wait | Pickup | Drop | "ReturnToStart" "(" ")";
 
 Move: 
     "Move" "(" direction=VectorProperty "," length=Length ")";
 MoveTo: 
     "Position" "("position=Position ")";
-ReturnToStart:
-   "ReturnToStart" "(" position=[Mission:UNIQUE]? ")";
+// ReturnToStart:
+//    "ReturnToStart" "(" position=[Mission:UNIQUE]? ")";
 Turn: 
    "Turn" "(" (angle=Angle | direction=Vector) ")";
 Wait: 
