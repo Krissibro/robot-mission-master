@@ -2,6 +2,7 @@ import { type Module, inject } from 'langium';
 import { createDefaultModule, createDefaultSharedModule, type DefaultSharedModuleContext, type LangiumServices, type LangiumSharedServices, type PartialLangiumServices } from 'langium/lsp';
 import { RobotMissionMasterGeneratedModule, RobotMissionMasterGeneratedSharedModule } from './generated/module.js';
 import { RobotMissionMasterValidator, registerValidationChecks } from './robot-mission-master-validator.js';
+import { RobotMissionMasterScopeProvider } from './scope-provider.js';
 
 /**
  * Declaration of custom services - add your own service classes here.
@@ -9,14 +10,17 @@ import { RobotMissionMasterValidator, registerValidationChecks } from './robot-m
 export type RobotMissionMasterAddedServices = {
     validation: {
         RobotMissionMasterValidator: RobotMissionMasterValidator
+    },
+    references: {
+        ScopeProvider: RobotMissionMasterScopeProvider
     }
-}
+};
 
 /**
  * Union of Langium default services and your custom services - use this as constructor parameter
  * of custom service classes.
  */
-export type RobotMissionMasterServices = LangiumServices & RobotMissionMasterAddedServices
+export type RobotMissionMasterServices = LangiumServices & RobotMissionMasterAddedServices;
 
 /**
  * Dependency injection module that overrides Langium default services and contributes the
@@ -26,6 +30,9 @@ export type RobotMissionMasterServices = LangiumServices & RobotMissionMasterAdd
 export const RobotMissionMasterModule: Module<RobotMissionMasterServices, PartialLangiumServices & RobotMissionMasterAddedServices> = {
     validation: {
         RobotMissionMasterValidator: () => new RobotMissionMasterValidator()
+    },
+    references: {
+        ScopeProvider: (services) => new RobotMissionMasterScopeProvider(services)
     }
 };
 
