@@ -7,7 +7,6 @@ Environment {
             ObstacleType: Land
             Position: (30, 30, 30)
             Size: (10, 10, 10)
-
         }
     }
     Objects {
@@ -47,13 +46,14 @@ Mission {
                   to start to drop it off."
     Environment: Alpha
     Robots: Milo, Lomi
-    RobotStarts: (0, 0, 0)
+    StartPositions: (0, 0, 0), (10, 10, 10)
     Tasks {
-        Milo moveTo(50, 50, 0)
-        Milo pickup(Coin)
-        Milo returnToStart()
-        Milo drop(Coin)
-        Lomi moveTo(30, 30, 50)
+        Milo Move(Vector: (50, 50, 0), Length: 20)
+        Milo MoveTo(50, 50, 0)
+        Milo Pickup(Coin)
+        Milo ReturnToStart()
+        Milo Drop(Coin)
+        Lomi MoveTo(30, 30, 50)
     }
 }
 
