@@ -34,7 +34,7 @@ export class RobotMissionMasterValidator {
 
         model.instances.forEach(instance => {
             if (isInstance(instance) && 'id' in instance) {
-                const id = instance.id;
+                const id = instance.id as string;
                 if (uniqueIDs.has(id)) {
                     accept('error', `Instance has non-unique ID '${id}'.`, { node: instance, property: 'id' });
                 } else {
@@ -67,42 +67,42 @@ export class RobotMissionMasterValidator {
         }
     }
 
-    // checkPositionsWithinEnvironment(environment: Environment, accept: ValidationAcceptor): void {
-    //     const { length, width, height } = evaluateSize(environment.size);
+    checkPositionsWithinEnvironment(environment: Environment, accept: ValidationAcceptor): void {
+        const { length, width, height } = evaluateSize(environment.sizeProperty);
 
-    //     // Validate WorldObjects positions
-    //     environment.objects.objects.forEach(object => {
-    //         if (!isWithinBounds(object.position, length, width, height)) {
-    //             accept('error', `WorldObject '${object.id}' is out of bounds in environment '${environment.id}'.`, { node: object, property: 'position' });
-    //         }
-    //     });
+        // Validate WorldObjects positions
+        environment.objects.objects.forEach(object => {
+            if (!isWithinBounds(object.positionProperty, length, width, height)) {
+                accept('error', `WorldObject '${object.id}' is out of bounds in environment '${environment.id}'.`, { node: object, property: 'positionProperty' });
+            }
+        });
 
-    //     // Validate Obstacles positions
-    //     environment.obstacles.obstacles.forEach(obstacle => {
-    //         if (!isWithinBounds(obstacle.position, length, width, height)) {
-    //             accept('error', `Obstacle '${obstacle.id}' is out of bounds in environment '${environment.id}'.`, { node: obstacle, property: 'position' });
-    //         }
-    //     });
-    // }
+        //Validate Obstacles positions
+        environment.obstacles.obstacles.forEach(obstacle => {
+            if (!isWithinBounds(obstacle.positionProperty, length, width, height)) {
+                accept('error', `Obstacle '${obstacle.id}' is out of bounds in environment '${environment.id}'.`, { node: obstacle, property: 'positionProperty' });
+            }
+        });
+    }
 
-    // checkMissionStartPositionsWithinEnvironment(mission: Mission, accept: ValidationAcceptor): void {
-    //     const environment = mission.environment.ref;
-    //     if (environment) {
-    //         const { length, width, height } = evaluateSize(environment.size);
+    checkMissionStartPositionsWithinEnvironment(mission: Mission, accept: ValidationAcceptor): void {
+        const environment = mission.enviromentProperty.environment.ref;
+        if (environment) {
+            const { length, width, height } = evaluateSize(environment.sizeProperty);
 
-    //         // Validate StartPositions
-    //         mission.startPositions.startPositions.forEach(position => {
-    //             if (!isWithinBounds(position, length, width, height)) {
-    //                 accept('error', `StartPosition in mission '${mission.id}' is out of bounds in environment '${environment.id}'.`, { node: position });
-    //             }
-    //         });
-    //     }
-    // }
+            // Validate StartPositions
+            mission.startPositions.startPositions.forEach(position => {
+                if (!isWithinBounds(position, length, width, height)) {
+                    accept('error', `StartPosition in mission '${mission.id}' is out of bounds in environment '${environment.id}'.`, { node: position });
+                }
+            });
+        }
+    }
 
     // checkTaskActionsWithinEnvironment(mission: Mission, accept: ValidationAcceptor): void {
-    //     const environment = mission.environment.ref;
+    //     const environment = mission.enviromentProperty.environment.ref;
     //     if (environment) {
-    //         const { length, width, height } = evaluateSize(environment.size);
+    //         const { length, width, height } = evaluateSize(environment.sizeProperty);
 
     //         mission.tasks?.tasks.forEach(task => {
     //             const action = task.action;
@@ -118,6 +118,7 @@ export class RobotMissionMasterValidator {
 
     //TODO: Check if WorldObjects or Obstacles
 }
+
 
 
 function evaluateExpression(expression: Expression): number {
@@ -144,23 +145,23 @@ function evaluateExpression(expression: Expression): number {
     throw new Error("Unsupported expression type");
 }
 
-// function evaluateSize(size: Size): { length: number, width: number, height: number } {
-//     return {
-//         length: evaluateExpression(size.length),
-//         width: evaluateExpression(size.width),
-//         height: evaluateExpression(size.height)
-//     };
-// }
+function evaluateSize(size: Size): { length: number, width: number, height: number } {
+    return {
+        length: evaluateExpression(size.length),
+        width: evaluateExpression(size.width),
+        height: evaluateExpression(size.height)
+    };
+}
 
-// function isWithinBounds(position: Position, length: number, width: number, height: number): boolean {
-//     const { x, y, z } = evaluatePosition(position);
-//     return x >= 0 && x <= length && y >= 0 && y <= width && z >= 0 && z <= height;
-// }
+function isWithinBounds(position: Position, length: number, width: number, height: number): boolean {
+    const { x, y, z } = evaluatePosition(position);
+    return x >= 0 && x <= length && y >= 0 && y <= width && z >= 0 && z <= height;
+}''
 
-// function evaluatePosition(position: Position): { x: number, y: number, z: number } {
-//     return {
-//         x: evaluateExpression(position.x),
-//         y: evaluateExpression(position.y),
-//         z: evaluateExpression(position.z)
-//     };
-// }
+function evaluatePosition(position: Position): { x: number, y: number, z: number } {
+    return {
+        x: evaluateExpression(position.x),
+        y: evaluateExpression(position.y),
+        z: evaluateExpression(position.z)
+    };
+}

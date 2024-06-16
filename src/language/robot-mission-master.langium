@@ -5,20 +5,20 @@ entry Model:
     (instances += Instance)*;    
 
 Instance:
-    Mission | 
-    Environment | 
-    Robot |
-    WorldObject |
-    Obstacle; 
+    mission =  Mission | 
+    environment = Environment | 
+    robot = Robot |
+    worldObject = WorldObject |
+    obstacle = Obstacle; 
 
 
 // Environment 
 Environment:
     "Environment" "{" 
-        ID
-        SizeProperty &
-        Objects &
-        Obstacles
+       id = ID
+       sizeProperty = SizeProperty &
+       objects = Objects &
+       obstacles = Obstacles
     "}";
 
 Objects:
@@ -28,10 +28,10 @@ Objects:
 
 WorldObject:
     "WorldObject" "{" 
-        ID
-        PositionProperty &  
-        SizeProperty &
-        Weight
+       id = ID
+       positionProperty =  PositionProperty &  
+       sizeProperty = SizeProperty &
+       weight = Weight
     "}";
 
 Obstacles:
@@ -41,10 +41,10 @@ Obstacles:
 
 Obstacle:
     "Obstacle" "{"
-        ID
-        PositionProperty &
-        ObstacleType &
-        SizeProperty
+       id =  ID
+       positionProperty =  PositionProperty &
+       obstacleType = ObstacleType &
+       sizeProperty =  SizeProperty
     "}";
 
 ObstacleType:
@@ -55,10 +55,10 @@ ObstacleType:
 // Robot
 Robot: 
     "Robot" "{"
-        ID
-        RobotType &
-        Battery &
-        Capacity 
+        id = ID
+        robotType = RobotType &
+        battery = Battery &
+        capacity = Capacity 
     "}";
 
 Battery:    
@@ -92,12 +92,12 @@ Drop:
 
 Mission:
     "Mission" "{"
-        ID
-        Description? 
-        EnvironmentProperty
-        RobotsProperty
-        StartPositions 
-        Tasks?
+        id = ID
+        description = Description? 
+        enviromentProperty = EnvironmentProperty
+        robotsProperty = RobotsProperty
+        startPositions = StartPositions 
+        tasks = Tasks?
     "}";
 
 Description: 
