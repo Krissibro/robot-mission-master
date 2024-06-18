@@ -4,7 +4,7 @@ import { Command } from 'commander';
 import { RobotMissionMasterLanguageMetaData } from '../language/generated/module.js';
 import { createRobotMissionMasterServices } from '../language/robot-mission-master-module.js';
 import { extractAstNode } from './cli-util.js';
-import { generate } from './generator.js';
+import { generateJsonFiles} from './generator.js';
 import { NodeFileSystem } from 'langium/node';
 import * as url from 'node:url';
 import * as fs from 'node:fs/promises';
@@ -17,7 +17,7 @@ const packageContent = await fs.readFile(packagePath, 'utf-8');
 export const generateAction = async (fileName: string, opts: GenerateOptions): Promise<void> => {
     const services = createRobotMissionMasterServices(NodeFileSystem).RobotMissionMaster;
     const model = await extractAstNode<Model>(fileName, services);
-    const generatedFilePath = generate(model);
+    const generatedFilePath = generateJsonFiles(model, fileName);
     console.log(chalk.green(`JavaScript code generated successfully: ${generatedFilePath}`));
 };
 
