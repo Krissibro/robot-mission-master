@@ -89,7 +89,7 @@ Drop:
     "Drop" "(" dropObject = [WorldObject:UNIQUE] ")";
 
 ReturnToStart returns string:
-    "ReturnToStart";
+    "ReturnToStart" "(" ")";
 
 // Mission
 Mission:
