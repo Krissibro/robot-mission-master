@@ -1,178 +1,194 @@
 grammar RobotMissionMaster
 
-
-entry Model: 
-    (instances += Instance)*;    
+entry Model:
+    (instances += Instance)*;
 
 Instance:
-    mission =  Mission | 
-    environment = Environment | 
+    mission = Mission |
+    environment = Environment |
     robot = Robot |
     worldObject = WorldObject |
-    obstacle = Obstacle; 
+    obstacle = Obstacle;
 
-
-// Environment 
+// Environment
 Environment:
-    "Environment" "{" 
-       id = ID
-       sizeProperty = SizeProperty &
-       objects = Objects &
-       obstacles = Obstacles
+    "Environment" "{"
+        id = ID &
+        sizeProperty = SizeProperty &
+        objects = Objects &
+        obstacles = Obstacles
     "}";
 
 Objects:
     "Objects" "{"
-        objects+=WorldObject*
+        objects += WorldObject*
     "}";
 
 WorldObject:
-    "WorldObject" "{" 
-       id = ID
-       positionProperty =  PositionProperty &  
-       sizeProperty = SizeProperty &
-       weight = Weight
+    "WorldObject" "{"
+        id = ID &
+        positionProperty = PositionProperty &
+        sizeProperty = SizeProperty &
+        weight = Weight
     "}";
 
 Obstacles:
     "Obstacles" "{"
-        obstacles+=Obstacle*
+        obstacles += Obstacle*
     "}";
 
 Obstacle:
     "Obstacle" "{"
-       id =  ID
-       positionProperty =  PositionProperty &
-       obstacleType = ObstacleType &
-       sizeProperty =  SizeProperty
+        id = ID &
+        positionProperty = PositionProperty &
+        obstacleType = ObstacleType &
+        sizeProperty = SizeProperty
     "}";
 
 ObstacleType:
-    "ObstacleType" ":" obstacleType=("Land" | "Water" | "Air" | "Weather");
-
-
+    "ObstacleType" ":" obstacleType = ("Land" | "Water" | "Air" | "Weather");
 
 // Robot
-Robot: 
+Robot:
     "Robot" "{"
-        id = ID
+        id = ID &
         robotType = RobotType &
         battery = Battery &
-        capacity = Capacity 
+        capacity = Capacity
     "}";
 
-Battery:    
-    "Battery" ":" battery=Expression;
-RobotType: 
-    "RobotType" ":" robotType=("Land" | "SurfaceWater" | "Underwater" | "Air");
+Battery:
+    "Battery" ":" battery = Expression;
+
+RobotType:
+    "RobotType" ":" robotType = ("Land" | "SurfaceWater" | "Underwater" | "Air");
+
 Capacity:
-    "Capacity" ":" capacity=Expression;
+    "Capacity" ":" capacity = Expression;
 
+// Actions
+Action:
+    Move | Turn | MoveTo | Wait | Pickup | Drop | ReturnToStart;
 
-Action: 
-    Move | Turn | MoveTo | Wait | Pickup | Drop | "ReturnToStart" "(" ")";
+Move:
+    "Move" "(" direction = VectorProperty "," length = Length ")";
 
-Move: 
-    "Move" "(" direction=VectorProperty "," length=Length ")";
-MoveTo: 
-    "Position" "("position=Position ")";
-// ReturnToStart:
-//    "ReturnToStart" "(" position=[Mission:UNIQUE]? ")";
-Turn: 
-   "Turn" "(" (angle=Angle | direction=Vector) ")";
-Wait: 
-   "Wait" "(" time=Expression ")";
-Pickup: 
-    "Pickup" "(" pickupObject=[WorldObject:UNIQUE] ")";
-Drop: 
-   "Drop" "(" dropObject=[WorldObject:UNIQUE] ")";
+MoveTo:
+    "Position" "(" position = Position ")";
 
+Turn:
+    "Turn" "(" (angle = Angle | direction = Vector) ")";
 
+Wait:
+    "Wait" "(" time = Expression ")";
 
+Pickup:
+    "Pickup" "(" pickupObject = [WorldObject:UNIQUE] ")";
 
+Drop:
+    "Drop" "(" dropObject = [WorldObject:UNIQUE] ")";
+
+ReturnToStart returns string:
+    "ReturnToStart";
+
+// Mission
 Mission:
     "Mission" "{"
-        id = ID
+        id = ID &
         description = Description? 
-        enviromentProperty = EnvironmentProperty
-        robotsProperty = RobotsProperty
-        startPositions = StartPositions 
+        environmentProperty = EnvironmentProperty &
+        robotsProperty = RobotsProperty &
+        startPositions = StartPositions &
         tasks = Tasks?
     "}";
 
-Description: 
-    "Description" ":" description=STRING;
+Description:
+    "Description" ":" description = STRING;
 
 EnvironmentProperty:
     "Environment" ":" environment = [Environment:UNIQUE];
+
 RobotsProperty:
-    "Robots" ":" robots+=[Robot:UNIQUE] (',' robots+=[Robot:UNIQUE])*;
+    "Robots" ":" robots += [Robot:UNIQUE] ("," robots += [Robot:UNIQUE])*;
+
 StartPositions:
-    "StartPositions" ":" startPositions+=Position (',' startPositions+=Position);
+    "StartPositions" ":" startPositions += Position ("," startPositions += Position)*;
+
 Tasks:
     "Tasks" "{" tasks += Task* "}";
-Task: robot=[Robot:UNIQUE]  action=Action;
 
-
+Task:
+    robot = [Robot:UNIQUE] action = Action;
 
 // General values and properties
 ID:
-    "ID" ":" id=UNIQUE;
+    "ID" ":" id = UNIQUE;
 
 Angle:
-    "Angle" ":" angle=Expression;
-Length:
-    "Length" ":" length=Expression;
-Weight:
-    "Weight" ":" weight=Expression;
-SizeProperty:
-    "Size" ":" Size;
-Size: 
-    "(" length=Expression "," width=Expression "," height=Expression ")";
-PositionProperty:
-    "Position" ":" Position;
-Position: 
-    "(" x=Expression "," y=Expression "," z=Expression ")";
-VectorProperty:
-    "Vector" ":" Vector;
-Vector: 
-    "(" x=Expression "," y=Expression "," z=Expression ")";
+    "Angle" ":" angle = Expression;
 
+Length:
+    "Length" ":" length = Expression;
+
+Weight:
+    "Weight" ":" weight = Expression;
+
+SizeProperty:
+    "Size" ":" size = Size;
+
+Size:
+    "(" length = Expression "," width = Expression "," height = Expression ")";
+
+PositionProperty:
+    "Position" ":" position = Position;
+
+Position:
+    "(" x = Expression "," y = Expression "," z = Expression ")";
+
+VectorProperty:
+    "Vector" ":" vector = Vector;
+
+Vector:
+    "(" x = Expression "," y = Expression "," z = Expression ")";
 
 // Number stuff
 Expression: Addition;
 
-Addition  infers Expression: 
-    Multiplication     ({infer BinExpression.left=current} operator=('+'|'-') right=Multiplication)*;
+Addition infers Expression:
+    Multiplication ({infer BinExpression.left = current} operator = ('+' | '-') right = Multiplication)*;
 
-Multiplication infers Expression: 
-    PrimaryExpression ({infer BinExpression.left=current} operator=('*'|'/') right=PrimaryExpression)*;
+Multiplication infers Expression:
+    PrimaryExpression ({infer BinExpression.left = current} operator = ('*' | '/') right = PrimaryExpression)*;
 
-PrimaryExpression: Literal | Group | NegativeExpression;
+PrimaryExpression:
+    Literal | Group | NegativeExpression;
 
-Literal:                
-    value=NUMBER;
-Group:                  
-    "(" group=Expression ")";
-NegativeExpression:     
-    "-" negativeExpression=Expression;
+Literal:
+    value = NUMBER;
 
+Group:
+    "(" group = Expression ")";
 
+NegativeExpression:
+    "-" negativeExpression = Expression;
 
 // Terminals
-terminal UNIQUE returns string:         
+terminal UNIQUE returns string:
     /[_a-zA-Z][\w_]*/;
-// "text"
-terminal STRING returns string: 
+
+terminal STRING returns string:
     /"[^"]*"/;
-terminal NUMBER returns number:       
+
+terminal NUMBER returns number:
     /(?:(?:-?[0-9]+)?\.[0-9]+)|-?[0-9]+/;
 
 // Ignore whitespaces
-hidden terminal WS:                 
+hidden terminal WS:
     /\s+/;
-// // and /* */ comments
-hidden terminal ML_COMMENT:         
+
+// Comments
+hidden terminal ML_COMMENT:
     /\/\*[\s\S]*?\*\//;
-hidden terminal SL_COMMENT:         
+
+hidden terminal SL_COMMENT:
     /\/\/[^\n\r]*/;

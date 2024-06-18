@@ -3,6 +3,8 @@ import { isInstance, Environment, Position, Mission, Expression, Size, Model, Ro
 import type { RobotMissionMasterServices } from './robot-mission-master-module.js';
 
 /**
+ * isMoveTo
+ * iset
  * Register custom validation checks.
  */
 export function registerValidationChecks(services: RobotMissionMasterServices) {
@@ -20,6 +22,7 @@ export function registerValidationChecks(services: RobotMissionMasterServices) {
         // ],
         Size: validator.checkValidSize,
         Expression: validator.checkValidExpression,
+        
     };
     registry.register(checks, validator);
 }
@@ -68,27 +71,27 @@ export class RobotMissionMasterValidator {
     }
 
     checkPositionsWithinEnvironment(environment: Environment, accept: ValidationAcceptor): void {
-        const { length, width, height } = evaluateSize(environment.sizeProperty);
+        const { length, width, height }= evaluateSize(environment.sizeProperty.size);
 
         // Validate WorldObjects positions
         environment.objects.objects.forEach(object => {
-            if (!isWithinBounds(object.positionProperty, length, width, height)) {
+            if (!isWithinBounds(object.positionProperty.position, length, width, height)) {
                 accept('error', `WorldObject '${object.id}' is out of bounds in environment '${environment.id}'.`, { node: object, property: 'positionProperty' });
             }
         });
 
         //Validate Obstacles positions
         environment.obstacles.obstacles.forEach(obstacle => {
-            if (!isWithinBounds(obstacle.positionProperty, length, width, height)) {
+            if (!isWithinBounds(obstacle.positionProperty.position, length, width, height)) {
                 accept('error', `Obstacle '${obstacle.id}' is out of bounds in environment '${environment.id}'.`, { node: obstacle, property: 'positionProperty' });
             }
         });
     }
 
     checkMissionStartPositionsWithinEnvironment(mission: Mission, accept: ValidationAcceptor): void {
-        const environment = mission.enviromentProperty.environment.ref;
+        const environment = mission.environmentProperty.environment.ref;
         if (environment) {
-            const { length, width, height } = evaluateSize(environment.sizeProperty);
+            const { length, width, height } = evaluateSize(environment.sizeProperty.size);
 
             // Validate StartPositions
             mission.startPositions.startPositions.forEach(position => {
@@ -100,14 +103,14 @@ export class RobotMissionMasterValidator {
     }
 
     // checkTaskActionsWithinEnvironment(mission: Mission, accept: ValidationAcceptor): void {
-    //     const environment = mission.enviromentProperty.environment.ref;
+    //     const environment = mission.environmentProperty.environment.ref;
     //     if (environment) {
-    //         const { length, width, height } = evaluateSize(environment.sizeProperty);
+    //         const { length, width, height } = evaluateSize(environment.sizeProperty.size);
 
     //         mission.tasks?.tasks.forEach(task => {
     //             const action = task.action;
     //             if (isMoveTo(action) || isReturnToStart(action)) {
-    //                 const position = action.position;
+    //                 const position = action;
     //                 if (position && !isWithinBounds(position, length, width, height)) {
     //                     accept('error', `Action position in task of mission '${mission.id}' is out of bounds in environment '${environment.id}'.`, { node: action, property: 'position' });
     //                 }
