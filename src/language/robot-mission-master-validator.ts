@@ -1,5 +1,5 @@
-import type { ValidationAcceptor, ValidationChecks } from 'langium';
-import { isInstance, Environment, Position, Mission, Expression, Size, Model, RobotMissionMasterAstType} from './generated/ast.js';
+import type { AstNode, ValidationAcceptor, ValidationChecks } from 'langium';
+import { isInstance, Environment, Position, Mission, Expression, Size, Model, RobotMissionMasterAstType, isMoveTo, isReturnToStart} from './generated/ast.js';
 import type { RobotMissionMasterServices } from './robot-mission-master-module.js';
 
 /**
@@ -15,11 +15,11 @@ export function registerValidationChecks(services: RobotMissionMasterServices) {
         Model: [
             validator.checkUniqueInstanceIDs,
         ],
-        // Environment: validator.checkPositionsWithinEnvironment,
-        // Mission: [
-        //     validator.checkMissionStartPositionsWithinEnvironment,
-        //     validator.checkTaskActionsWithinEnvironment
-        // ],
+        Environment: validator.checkPositionsWithinEnvironment,
+        Mission: [
+            validator.checkMissionStartPositionsWithinEnvironment,
+            // validator.checkTaskActionsWithinEnvironment
+        ],
         Size: validator.checkValidSize,
         Expression: validator.checkValidExpression,
         
@@ -110,7 +110,7 @@ export class RobotMissionMasterValidator {
     //         mission.tasks?.tasks.forEach(task => {
     //             const action = task.action;
     //             if (isMoveTo(action) || isReturnToStart(action)) {
-    //                 const position = action;
+    //                 const position = evaluatePosition(action.position);
     //                 if (position && !isWithinBounds(position, length, width, height)) {
     //                     accept('error', `Action position in task of mission '${mission.id}' is out of bounds in environment '${environment.id}'.`, { node: action, property: 'position' });
     //                 }
